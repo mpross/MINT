@@ -111,7 +111,7 @@ void loop() {
       int duration = (int)(((double)angle)/360.0*3700.0);  
       myMotor->setSpeed(motorspeed);
       
-      // Direction logic to have positive be clockwise
+      // Direction logic to have positive be inward.
       if (duration>0)
       {
         myMotor->run(BACKWARD);
@@ -129,7 +129,7 @@ void loop() {
 
     // Help command
     if(first=="help" || first=="Help"){
-      Serial.println("Commands: \n \t move (angle in degress) - Moves previously selected motor. Positive for clockwise, negative for counter clockwise.");
+      Serial.println("Commands: \n \t move (angle in degress) - Moves previously selected motor. Positive for inward, negative for outward.");
       Serial.println("\t motor (side: left or right) (direction: pitch or yaw) - Selects which motor to move. 0.1 deg = ~ 1 ms");
     }
   }
