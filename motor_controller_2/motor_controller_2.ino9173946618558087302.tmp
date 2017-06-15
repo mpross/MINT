@@ -1,0 +1,107 @@
+
+#include <Wire.h>
+#include <Adafruit_MotorShield.h>
+#include "utility/Adafruit_PWMServoDriver.h"
+
+Adafruit_MotorShield AFMS = Adafruit_MotorShield(); 
+
+String getValue(String data, char separator, int index)
+{
+  int found = 0;
+  int strIndex[] = {
+    0, -1  };
+  int maxIndex = data.length()-1;
+  for(int i=0; i<=maxIndex && found<=index; i++){
+    if(data.charAt(i)==separator || i==maxIndex){
+      found++;
+      strIndex[0] = strIndex[1]+1;
+      strIndex[1] = (i == maxIndex) ? i+1 : i;
+    }
+  }
+  return found>index ? data.substring(strIndex[0], strIndex[1]) : "";
+}
+
+void setup() {
+  static int motorselection;
+  Serial.begin(9600);
+  Serial.println("initialized");
+
+  AFMS.begin();  
+  if(motorselection==1){
+    Serial.println("Selected motor left pitch.");
+  }
+  else if(motorselection==2){
+    Serial.println("Selected motor left yaw.");
+  }
+  else if(motorselection==3){
+    Serial.println("Selected motor right pitch.");
+  }
+  else if(motorselection==4){
+    Serial.println("Selected motor right yaw.");
+  }
+}
+
+
+void loop() {
+  while (Serial.available() > 0) {
+    static int motorselection;
+    int motorspeed = 150;
+    int angle = 10; //in ms 360 deg ~3.7s     
+    String full;
+        
+    full=Serial.readString();
+    Serial.println(full);
+    String first=getValue(full," ",0);
+    String second=getValue(full," ",1);
+    String third=getValue(full," ",2);
+    
+    int duration = (int)(((double)angle)/360.0*3700.0);
+    int rotationaldirection = 1; //1 for forward, -1 for reverse
+    
+    Adafruit_DCMotor *myMotor = AFMS.getMotor(motorselection);
+
+    if(first=="motor" || first=="Motor"){
+      if((second=="left" || second=="Left") && (third=="pitch" || third=="Pitch")){
+        motorselection=1;
+      }
+      else if((second=="left" || second=="Left") && (third=="yaw" || third=="Yaw")){
+        motorselection=2;
+      }
+      else if((second=="right" || second=="Right") && (third=="pitch" || third=="Pitch")){
+        motorselection=3;
+      }
+      else if((second=="right" || second=="Right") && (third=="yaw" || third=="Yaw")){
+        motorselection=4;
+      }
+    }
+    else{
+      myMotor->setSpeed(motorspeed);
+      if (rotationaldirection == 1)
+      {
+        myMotor->run(FORWARD);
+      }
+      if (rotationaldirection == -1)
+      {
+        myMotor->run(BACKWARD);
+      }
+      delay(duration);
+      myMotor->run(RELEASE);
+      Serial.println("Done");
+      
+      if(motorselection==1){
+        Serial.println("Selected motor left pitch.");
+      }
+      else if(motorselection==2){
+        Serial.println("Selected motor left yaw.");
+      }
+      else if(motorselection==3){
+        Serial.println("Selected motor right pitch.");
+      }
+      else if(motorselection==4){
+        Serial.println("Selected motor right yaw.");
+      }
+    }
+
+  }
+}
+
