@@ -4,7 +4,7 @@
 #include "utility/Adafruit_PWMServoDriver.h"
 
 Adafruit_MotorShield AFMS = Adafruit_MotorShield(); 
-
+// String splitter (Stolen)
 String getValue(String data, char separator, int index)
 {
   int found = 0;
@@ -20,7 +20,7 @@ String getValue(String data, char separator, int index)
   }
   return found>index ? data.substring(strIndex[0], strIndex[1]) : "";
 }
-
+// Motor selection method. Call with zero as input to return current motor.
 int setMotor(int index){
   static int motorselection;
   if(index>0){
@@ -28,23 +28,30 @@ int setMotor(int index){
   }  
   return motorselection;
 }
-
+// Position saving method. 
+double setPosition(double angle){
+  static double pos;
+  pos+=angle; 
+  return pos;
+}
+// Com setup
 void setup() {
   
   Serial.begin(9600);
-  Serial.println("initialized");
+  Serial.println("MINT Alignment Mirror Control /n Use motor command to select motor /n or type help for full command list");
 
   AFMS.begin(); 
 
 }
 
-
+// Main loop
 void loop() {
   while (Serial.available() > 0) {
-    int motorspeed = 150;
-    String full;
+    int motorspeed = 150; //Angle calibrated to this speed if changed must recalibrate
+    String full; // Full user input
     
     int motorselection=setMotor(0);
+    //Tells user what motor is moving;
     if(motorselection==1){
       Serial.println("Moving motor left pitch.");
     }
@@ -58,17 +65,22 @@ void loop() {
       Serial.println("Moving motor right yaw.");
     }
 
-        
+    // String parsing    
     full=Serial.readString();
     Serial.println(full);
-    String first=getValue(full,' ',0);
-    String second=getValue(full,' ',1);
-    String third=getValue(full,' ',2);
-    
-    int rotationaldirection = 1; //1 for forward, -1 for reverse
+    String first=getValue(full,' ',0); // Main command
+    String second=getValue(full,' ',1); // Direction selection
+    String third=getValue(full,' ',2); // Mirror selection
+    String temp;    
     
     Adafruit_DCMotor *myMotor = AFMS.getMotor(motorselection);
-
+    // If mirror selection is second word switch second and third word
+    if(third=="left"||third =="Left"||third=="Right"||third=="right"){
+      temp=second;
+      second=third;
+      third=temp;
+    }
+    // Motor selection command
     if(first=="motor" || first=="Motor"){
       if((second=="left" || second=="Left") && (third=="pitch" || third=="Pitch")){
         motorselection=setMotor(1);
@@ -82,15 +94,24 @@ void loop() {
       else if((second=="right" || second=="Right") && (third=="yaw" || third=="Yaw")){
         motorselection=setMotor(4);
       }
-      Serial.println("Done");   
+      Serial.println("Motor selection done.");   
     }
+    
+    // Move command
     if(first=="move" || first=="Move"){
       if(motorselection==0){
         Serial.println("No motor selected.");      
       }
-      double angle = second.toDouble(); //in ms 360 deg ~3.7s  
-      int duration = (int)(((double)angle)/360.0*3700.0);   
+      double angle = second.toDouble(); //in ms 360 deg ~3.7s
+      double cur=setPosition(angle);
+      
+      // Current position from starting angle print out
+      Serial.print("Current position: ");
+      Serial.print(cur);  
+      int duration = (int)(((double)angle)/360.0*3700.0);  
       myMotor->setSpeed(motorspeed);
+      
+      // Direction logic to have positive be clockwise
       if (duration>0)
       {
         myMotor->run(BACKWARD);
@@ -105,9 +126,11 @@ void loop() {
       }
       Serial.println("Done");     
     }
+
+    // Help command
     if(first=="help" || first=="Help"){
       Serial.println("Commands: \n \t move (angle in degress) - Moves previously selected motor. Positive for clockwise, negative for counter clockwise.");
-      Serial.println("\t motor (side: left or right) (direction: pitch or yaw)");
+      Serial.println("\t motor (side: left or right) (direction: pitch or yaw) - Selects which motor to move. 0.1 deg = ~ 1 ms");
     }
   }
 }
