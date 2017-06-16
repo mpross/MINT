@@ -38,7 +38,7 @@ double setPosition(double angle){
 void setup() {
   
   Serial.begin(9600);
-  Serial.println("MINT Alignment Mirror Control /n Use motor command to select motor /n or type help for full command list");
+  Serial.println("MINT Alignment Mirror Control \n Use motor command to select motor \n or type help for full command list");
 
   AFMS.begin(); 
 
@@ -107,7 +107,8 @@ void loop() {
       
       // Current position from starting angle print out
       Serial.print("Current position: ");
-      Serial.print(cur);  
+      Serial.print(cur);
+      Serial.print("\n");  
       int duration = (int)(((double)angle)/360.0*3700.0);  
       myMotor->setSpeed(motorspeed);
       
