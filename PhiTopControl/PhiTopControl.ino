@@ -34,12 +34,20 @@ double setPosition(double angle){
   pos+=angle; 
   return pos;
 }
+// Motor speed method. Call with zero as input to return current speed.
+int setMotorSpeed(int spd){
+  static int sped;
+  if(spd>0){
+    sped=spd;
+  }  
+  return sped;
+}
 // Com setup
 void setup() {
   
   Serial.begin(9600);
-  Serial.println("MINT Alignment Mirror Control /n Use motor command to select motor /n or type help for full command list");
-
+  Serial.println("MINT Phi Top Control /n Use axis command to select axis /n or type help for full command list");
+  setMotorSpeed(150);
   AFMS.begin(); 
 
 }
@@ -47,54 +55,64 @@ void setup() {
 // Main loop
 void loop() {
   while (Serial.available() > 0) {
-    int motorspeed = 150; //Angle calibrated to this speed if changed must recalibrate
+    int motorspeed = setMotorSpeed(0); 
     String full; // Full user input
     
     int motorselection=setMotor(0);
     //Tells user what motor is moving;
     if(motorselection==1){
-      Serial.println("Moving motor left pitch.");
+      Serial.println("Moving Phi-axis.");
     }
     else if(motorselection==2){
-      Serial.println("Moving motor left yaw.");
+      Serial.println("Moving X-axis.");
     }
     else if(motorselection==3){
-      Serial.println("Moving motor right pitch.");
-    }
-    else if(motorselection==4){
-      Serial.println("Moving motor right yaw.");
+      Serial.println("Moving Y-axis.");
     }
 
     // String parsing    
     full=Serial.readString();
     Serial.println(full);
     String first=getValue(full,' ',0); // Main command
-    String second=getValue(full,' ',1); // Direction selection
-    String third=getValue(full,' ',2); // Mirror selection
+    String second=getValue(full,' ',1); // Axis selection
     String temp;    
     
     Adafruit_DCMotor *myMotor = AFMS.getMotor(motorselection);
-    // If mirror selection is second word switch second and third word
-    if(third=="left"||third =="Left"||third=="Right"||third=="right"){
-      temp=second;
-      second=third;
-      third=temp;
+
+    // Speed set command
+    if(first=="speed" || first=="Speed"){
+      if(second==""){
+        Serial.print("Current speed: ");
+        Serial.print(setMotorSpeed(0));
+        Serial.print("\n");
+      }
     }
+    
     // Motor selection command
-    if(first=="motor" || first=="Motor"){
-      if((second=="left" || second=="Left") && (third=="pitch" || third=="Pitch")){
-        motorselection=setMotor(1);
+    if(first=="axis" || first=="Axis"){
+      if(second=="phi" || second=="Phi"){
+        motorselection=setMotor(1);        
+        Serial.println("Axis selection done."); 
       }
-      else if((second=="left" || second=="Left") && (third=="yaw" || third=="Yaw")){
-        motorselection=setMotor(2);
+      else if(second=="x" || second=="X"){
+        motorselection=setMotor(2);        
+        Serial.println("Axis selection done."); 
       }
-      else if((second=="right" || second=="Right") && (third=="pitch" || third=="Pitch")){
-        motorselection=setMotor(3);
+      else if(second=="y" || second=="Y") {
+        motorselection=setMotor(3);        
+        Serial.println("Axis selection done."); 
       }
-      else if((second=="right" || second=="Right") && (third=="yaw" || third=="Yaw")){
-        motorselection=setMotor(4);
-      }
-      Serial.println("Motor selection done.");   
+      else if(second=="" || second=="") {        
+        if(motorselection==1){
+          Serial.println("Current axis: Phi");
+        }
+        else if(motorselection==2){
+          Serial.println("Current axis: X");
+        }
+        else if(motorselection==3){
+          Serial.println("Current axis: Y");
+        } 
+      }  
     }
     
     // Move command
@@ -102,13 +120,13 @@ void loop() {
       if(motorselection==0){
         Serial.println("No motor selected.");      
       }
-      double angle = second.toDouble(); //in ms 360 deg ~3.7s
-      double cur=setPosition(angle);
+      int duration = second.toDouble();
+      double cur=setPosition(duration);
       
       // Current position from starting angle print out
-      Serial.print("Current position: ");
-      Serial.print(cur);  
-      int duration = (int)(((double)angle)/360.0*3700.0);  
+      Serial.print("Current position (ms): ");
+      Serial.print(cur);   
+      
       myMotor->setSpeed(motorspeed);
       
       // Direction logic to have positive be inward.
@@ -129,8 +147,9 @@ void loop() {
 
     // Help command
     if(first=="help" || first=="Help"){
-      Serial.println("Commands: \n \t move (angle in degress) - Moves previously selected motor. Positive for inward, negative for outward.");
-      Serial.println("\t motor (side: left or right) (direction: pitch or yaw) - Selects which motor to move. 0.1 deg = ~ 1 ms");
+      Serial.println("Commands: \n \t move (time in ms) - Moves previously selected axis.");
+      Serial.println("\t axis (phi, x, y) - Selects which axis to move.");
+      Serial.println("\t speed (speed 0 to 255) - Sets speed of the motor.");
     }
   }
 }
