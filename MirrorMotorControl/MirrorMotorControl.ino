@@ -29,10 +29,27 @@ int setMotor(int index){
   return motorselection;
 }
 // Position saving method. 
-double setPosition(double angle){
-  static double pos;
-  pos+=angle; 
-  return pos;
+double setPosition(double angle, int mIndex){
+  static double pos1;
+  static double pos2;
+  static double pos3;
+  static double pos4;
+  if (mIndex==1){
+    pos1+=angle; 
+    return pos1;
+  }
+  else if (mIndex==2){
+    pos2+=angle; 
+    return pos2;
+  }
+  else if (mIndex==3){
+    pos3+=angle; 
+    return pos3;
+  }
+  else if (mIndex==4){
+    pos4+=angle; 
+    return pos4;
+  }
 }
 // Com setup
 void setup() {
@@ -84,26 +101,32 @@ void loop() {
     if(first=="motor" || first=="Motor"){
       if((second=="left" || second=="Left") && (third=="pitch" || third=="Pitch")){
         motorselection=setMotor(1);
+        Serial.println("Motor selection done.");
       }
       else if((second=="left" || second=="Left") && (third=="yaw" || third=="Yaw")){
         motorselection=setMotor(2);
+        Serial.println("Motor selection done.");
       }
       else if((second=="right" || second=="Right") && (third=="pitch" || third=="Pitch")){
         motorselection=setMotor(3);
+        Serial.println("Motor selection done.");
       }
       else if((second=="right" || second=="Right") && (third=="yaw" || third=="Yaw")){
         motorselection=setMotor(4);
+        Serial.println("Motor selection done.");
       }
-      Serial.println("Motor selection done.");   
+      else{
+        Serial.println("Input error.");  
+      }         
     }
     
     // Move command
-    if(first=="move" || first=="Move"){
+    else if(first=="move" || first=="Move"){
       if(motorselection==0){
         Serial.println("No motor selected.");      
       }
       double angle = second.toDouble(); //in ms 360 deg ~3.7s
-      double cur=setPosition(angle);
+      double cur=setPosition(angle,motorselection);
       
       // Current position from starting angle print out
       Serial.print("Current position: ");
@@ -129,9 +152,12 @@ void loop() {
     }
 
     // Help command
-    if(first=="help" || first=="Help"){
+    else if(first=="help" || first=="Help"){
       Serial.println("Commands: \n \t move (angle in degress) - Moves previously selected motor. Positive for inward, negative for outward.");
       Serial.println("\t motor (side: left or right) (direction: pitch or yaw) - Selects which motor to move. 0.1 deg = ~ 1 ms");
+    }
+    else{
+        Serial.println("Input error.");  
     }
   }
 }
