@@ -29,10 +29,22 @@ int setMotor(int index){
   return motorselection;
 }
 // Position saving method. 
-double setPosition(double angle){
-  static double pos;
-  pos+=angle; 
-  return pos;
+double setPosition(double angle, int aIndex){
+  static double pos1;
+  static double pos2;
+  static double pos3;
+  if (aIndex==1){
+    pos1+=angle; 
+    return pos1;
+  }
+  if (aIndex==2){
+    pos2+=angle; 
+    return pos2;
+  }
+  if (aIndex==3){
+    pos3+=angle; 
+    return pos3;
+  }
 }
 // Motor speed method. Call with zero as input to return current speed.
 int setMotorSpeed(int spd){
@@ -89,7 +101,7 @@ void loop() {
     }
     
     // Motor selection command
-    if(first=="axis" || first=="Axis"){
+    else if(first=="axis" || first=="Axis"){
       if(second=="phi" || second=="Phi"){
         motorselection=setMotor(1);        
         Serial.println("Axis selection done."); 
@@ -112,16 +124,19 @@ void loop() {
         else if(motorselection==3){
           Serial.println("Current axis: Y");
         } 
-      }  
+      }
+      else{
+        Serial.println("Input error.");  
+      }
     }
     
     // Move command
-    if(first=="move" || first=="Move"){
+    else if(first=="move" || first=="Move"){
       if(motorselection==0){
         Serial.println("No motor selected.");      
       }
       int duration = second.toDouble();
-      double cur=setPosition(duration);
+      double cur=setPosition(duration,motorselection);
       
       // Current position from starting angle print out
       Serial.print("Current position (ms): ");
@@ -144,12 +159,16 @@ void loop() {
       }
       Serial.println("Done");     
     }
+    
 
     // Help command
-    if(first=="help" || first=="Help"){
+    else if(first=="help" || first=="Help"){
       Serial.println("Commands: \n \t move (time in ms) - Moves previously selected axis.");
       Serial.println("\t axis (phi, x, y) - Selects which axis to move.");
       Serial.println("\t speed (speed 0 to 255) - Sets speed of the motor.");
+    }
+    else{
+        Serial.println("Input error.");  
     }
   }
 }

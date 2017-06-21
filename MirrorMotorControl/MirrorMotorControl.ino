@@ -29,10 +29,27 @@ int setMotor(int index){
   return motorselection;
 }
 // Position saving method. 
-double setPosition(double angle){
-  static double pos;
-  pos+=angle; 
-  return pos;
+double setPosition(double angle, int mIndex){
+  static double pos1;
+  static double pos2;
+  static double pos3;
+  static double pos4;
+  if (mIndex==1){
+    pos1+=angle; 
+    return pos1;
+  }
+  else if (mIndex==2){
+    pos2+=angle; 
+    return pos2;
+  }
+  else if (mIndex==3){
+    pos3+=angle; 
+    return pos3;
+  }
+  else if (mIndex==4){
+    pos4+=angle; 
+    return pos4;
+  }
 }
 // Com setup
 void setup() {
@@ -103,7 +120,7 @@ void loop() {
         Serial.println("No motor selected.");      
       }
       double angle = second.toDouble(); //in ms 360 deg ~3.7s
-      double cur=setPosition(angle);
+      double cur=setPosition(angle,motorselection);
       
       // Current position from starting angle print out
       Serial.print("Current position: ");
