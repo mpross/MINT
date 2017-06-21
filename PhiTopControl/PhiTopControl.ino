@@ -123,6 +123,9 @@ void loop() {
         }
         else if(motorselection==4){
           Serial.println("Current axis: Y");
+        }
+        else{
+          Serial.println("Input error.");  
         } 
       }
       else{
@@ -140,7 +143,8 @@ void loop() {
       
       // Current position from starting angle print out
       Serial.print("Current position (ms): ");
-      Serial.print(cur);   
+      Serial.print(cur);  
+      Serial.print("\n"); 
       
       myMotor->setSpeed(motorspeed);
       
