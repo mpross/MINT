@@ -101,21 +101,27 @@ void loop() {
     if(first=="motor" || first=="Motor"){
       if((second=="left" || second=="Left") && (third=="pitch" || third=="Pitch")){
         motorselection=setMotor(1);
+        Serial.println("Motor selection done.");
       }
       else if((second=="left" || second=="Left") && (third=="yaw" || third=="Yaw")){
         motorselection=setMotor(2);
+        Serial.println("Motor selection done.");
       }
       else if((second=="right" || second=="Right") && (third=="pitch" || third=="Pitch")){
         motorselection=setMotor(3);
+        Serial.println("Motor selection done.");
       }
       else if((second=="right" || second=="Right") && (third=="yaw" || third=="Yaw")){
         motorselection=setMotor(4);
+        Serial.println("Motor selection done.");
       }
-      Serial.println("Motor selection done.");   
+      else{
+        Serial.println("Input error.");  
+      }         
     }
     
     // Move command
-    if(first=="move" || first=="Move"){
+    else if(first=="move" || first=="Move"){
       if(motorselection==0){
         Serial.println("No motor selected.");      
       }
@@ -146,9 +152,12 @@ void loop() {
     }
 
     // Help command
-    if(first=="help" || first=="Help"){
+    else if(first=="help" || first=="Help"){
       Serial.println("Commands: \n \t move (angle in degress) - Moves previously selected motor. Positive for inward, negative for outward.");
       Serial.println("\t motor (side: left or right) (direction: pitch or yaw) - Selects which motor to move. 0.1 deg = ~ 1 ms");
+    }
+    else{
+        Serial.println("Input error.");  
     }
   }
 }
