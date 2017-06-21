@@ -72,13 +72,13 @@ void loop() {
     
     int motorselection=setMotor(0);
     //Tells user what motor is moving;
-    if(motorselection==1){
+    if(motorselection==3){
       Serial.println("Moving Phi-axis.");
     }
-    else if(motorselection==3){
+    else if(motorselection==1){
       Serial.println("Moving X-axis.");
     }
-    else if(motorselection==4){
+    else if(motorselection==2){
       Serial.println("Moving Y-axis.");
     }
 
@@ -103,25 +103,25 @@ void loop() {
     // Motor selection command
     else if(first=="axis" || first=="Axis"){
       if(second=="phi" || second=="Phi"){
-        motorselection=setMotor(1);        
-        Serial.println("Axis selection done."); 
-      }
-      else if(second=="x" || second=="X"){
         motorselection=setMotor(3);        
         Serial.println("Axis selection done."); 
       }
+      else if(second=="x" || second=="X"){
+        motorselection=setMotor(1);        
+        Serial.println("Axis selection done."); 
+      }
       else if(second=="y" || second=="Y") {
-        motorselection=setMotor(4);        
+        motorselection=setMotor(2);        
         Serial.println("Axis selection done."); 
       }
       else if(second=="" || second=="") {        
-        if(motorselection==1){
+        if(motorselection==3){
           Serial.println("Current axis: Phi");
         }
-        else if(motorselection==3){
+        else if(motorselection==1){
           Serial.println("Current axis: X");
         }
-        else if(motorselection==4){
+        else if(motorselection==2){
           Serial.println("Current axis: Y");
         }
         else{
