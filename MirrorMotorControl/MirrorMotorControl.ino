@@ -116,7 +116,21 @@ void loop() {
         Serial.println("Motor selection done.");
       }
       else{
-        Serial.println("Input error.");  
+        if(motorselection==1){
+          Serial.println("Motor left pitch");
+        }
+        else if(motorselection==2){
+          Serial.println("Motor left yaw");
+        }
+        else if(motorselection==3){
+          Serial.println("Motor right pitch");
+        }
+        else if(motorselection==4){
+          Serial.println("Motor right yaw");
+        }
+        else{
+          Serial.println("Input error.");
+        }  
       }         
     }
     
@@ -125,7 +139,10 @@ void loop() {
       if(motorselection==0){
         Serial.println("No motor selected.");      
       }
-      double angle = second.toDouble(); //in ms 360 deg ~3.7s
+      double angle=0;
+      if (second!=""){
+        double angle = second.toDouble(); //in ms 360 deg ~3.7s
+      }
       double cur=setPosition(angle,motorselection);
       
       // Current position from starting angle print out

@@ -129,7 +129,18 @@ void loop() {
         } 
       }
       else{
-        Serial.println("Input error.");  
+        if(motorselection==3){
+          Serial.println("Phi-axis selected.");
+        }
+        else if(motorselection==1){
+          Serial.println("X-axis selected.");
+        }
+        else if(motorselection==2){
+          Serial.println("Y-axis selected.");
+        }
+        else{
+          Serial.println("Input error.");
+        }  
       }
     }
     
@@ -138,7 +149,10 @@ void loop() {
       if(motorselection==0){
         Serial.println("No motor selected.");      
       }
-      int duration = second.toDouble();
+      int duration =0;
+      if (second!=""){
+        duration = second.toDouble();
+      }
       double cur=setPosition(duration,motorselection);
       
       // Current position from starting angle print out
