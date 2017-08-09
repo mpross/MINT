@@ -98,6 +98,11 @@ void loop() {
         Serial.print(setMotorSpeed(0));
         Serial.print("\n");
       }
+      else{
+        Serial.print("Current speed: ");
+        Serial.print(setMotorSpeed(second.toDouble()));
+        Serial.print("\n");
+      }
     }
     
     // Motor selection command
